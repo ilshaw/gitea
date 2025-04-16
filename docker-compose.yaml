@@ -49,6 +49,8 @@ services:
             GITEA_DATABASE_PORT_NUMBER: ${GITEA_POSTGRESQL_PORT}
             GITEA_ADMIN_PASSWORD: ${GITEA_PASSWORD}
             GITEA_ADMIN_USER: ${GITEA_USERNAME}
+            GITEA_SSH_DOMAIN: ${GITEA_HOST}
+            GITEA_SSH_PORT: ${GITEA_SSH}
         depends_on:
             postgresql:
                 condition: service_healthy

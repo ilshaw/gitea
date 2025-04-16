@@ -29,9 +29,7 @@ services:
           - target: /bitnami/postgresql
             source: postgresql
             type: volume
-        ports:
-          - published: ${POSTGRESQL_PORT}
-            target: 5432
+
     gitea:
         container_name: ${GITEA_NAME}
         restart: unless-stopped

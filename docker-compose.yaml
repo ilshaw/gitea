@@ -1,0 +1,80 @@
+name: ${COMPOSE_NAME}
+
+services:
+    postgresql:
+        container_name: ${POSTGRESQL_NAME}
+        restart: unless-stopped
+        image: bitnami/postgresql:17.4.0
+        healthcheck:
+            start_interval: 5s
+            start_period: 5s
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            test: ["CMD", "pg_isready", "-q", "-d", "${POSTGRESQL_DATABASE}", "-U", "${POSTGRESQL_USERNAME}"]
+        environment:
+            POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+            POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+            POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+        networks:
+          - postgresql
+          - gitea
+        volumes:
+          - target: /docker-entrypoint-preinitdb.d
+            source: postgresql
+            type: volume
+          - target: /docker-entrypoint-initdb.d
+            source: postgresql
+            type: volume
+          - target: /bitnami/postgresql
+            source: postgresql
+            type: volume
+        ports:
+          - published: ${POSTGRESQL_PORT}
+            target: 5432
+    gitea:
+        container_name: ${GITEA_NAME}
+        restart: unless-stopped
+        image: bitnami/gitea:1.23.7
+        healthcheck:
+            start_interval: 5s
+            start_period: 5s
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            test: ["CMD", "curl", "-f", "-s", "http://127.0.0.1:3000/api/healthz"]
+        environment:
+            GITEA_DATABASE_USERNAME: ${POSTGRESQL_USERNAME}
+            GITEA_DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
+            GITEA_DATABASE_NAME: ${POSTGRESQL_DATABASE}
+            GITEA_DATABASE_HOST: ${POSTGRESQL_HOST}
+            GITEA_DATABASE_PORT_NUMBER: ${POSTGRESQL_PORT}
+            GITEA_ADMIN_PASSWORD: ${GITEA_PASSWORD}
+            GITEA_ADMIN_USER: ${GITEA_USERNAME}
+        depends_on:
+            postgresql:
+                condition: service_healthy
+        networks:
+          - postgresql
+          - gitea
+        volumes:
+          - target: /bitnami/gitea
+            source: gitea
+            type: volume
+        ports:
+          - published: ${GITEA_SSH}
+            target: 2222
+          - published: ${GITEA_HTTP}
+            target: 3000
+
+networks:
+    postgresql:
+        name: ${GITEA_NAME}
+    gitea:
+        name: ${GITEA_NAME}
+
+volumes:
+    postgresql:
+        name: ${GITEA_NAME}
+    gitea:
+        name: ${GITEA_NAME}

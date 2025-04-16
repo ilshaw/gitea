@@ -69,12 +69,12 @@ services:
 
 networks:
     postgresql:
-        name: ${GITEA_NAME}
+        name: ${POSTGRESQL_NAME}
     gitea:
         name: ${GITEA_NAME}
 
 volumes:
     postgresql:
-        name: ${GITEA_NAME}
+        name: ${POSTGRESQL_NAME}
     gitea:
         name: ${GITEA_NAME}
